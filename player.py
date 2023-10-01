@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from support import *
 from timer import Timer
+from fromApi import *
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group, collision_sprites, tree_sprites, interaction, soil_layer, toggle_shop):

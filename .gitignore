@@ -265,4 +265,9 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
+
+# Add your custom file to ignore here:
+fromApi.py
+__pycache__
+
 # End of https://www.toptal.com/developers/gitignore/api/python,django

@@ -23,7 +23,6 @@ def get_font(size):
 def toggle_black_screen(player, black_screen_visible):
     if black_screen_visible and pygame.key.get_pressed()[pygame.K_i]:
         player.display_inventory(SCREEN)
-
 def game_loop():
     game_level = Level()
     player = game_level.player
