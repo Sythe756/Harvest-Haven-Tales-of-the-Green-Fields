@@ -47,7 +47,7 @@ class Player(pygame.sprite.Sprite):
         # inventory
         self.inventory_open = False
         self.item_inventory = {
-            'wood': 20,
+            'wood': 6,
             # 'apple': 20,
             'corn': 20,
             'tomato': 20

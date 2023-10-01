@@ -78,7 +78,7 @@ class Tree(Generic):
 		# self.apple_sprites = pygame.sprite.Group()
 		# self.create_fruit()
 
-		# self.player_add = player_add
+		self.player_add = player_add
 
 		# sounds
 		self.axe_sound = pygame.mixer.Sound('./assets/audio/axe.mp3')
