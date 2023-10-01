@@ -45,7 +45,7 @@ class Level:
 		# music
 		self.success = pygame.mixer.Sound('./assets/audio/success.wav')
 		self.success.set_volume(0.3)
-		self.music = pygame.mixer.Sound('./assets/audio/music.mp3')
+		self.music = pygame.mixer.Sound('./assets/audio/y2mate.is - Casual Farm Game Background Music Pack No Copyright -KpjOtmkzEps-192k-1696013884.mp3')
 		self.music.play(loops = -1)
 
 	def setup(self):
