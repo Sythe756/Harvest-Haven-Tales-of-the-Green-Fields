@@ -3,6 +3,7 @@ import sys
 from buttons import Button
 from level import Level
 from settings import *
+from name_input import get_player_name
 
 # Constants
 SCREEN_SIZE = (1280, 695)
@@ -23,7 +24,8 @@ def get_font(size):
 def toggle_black_screen(player, black_screen_visible):
     if black_screen_visible and pygame.key.get_pressed()[pygame.K_i]:
         player.display_inventory(SCREEN)
-def game_loop():
+
+def game_loop(player_name):
     game_level = Level()
     player = game_level.player
 
@@ -104,7 +106,9 @@ def main_menu():
                 for button in buttons:
                     if button.checkForInput(MENU_MOUSE_POS):
                         if button == PLAY_BUTTON:
-                            game_loop()
+                            player_name = get_player_name()
+                            if player_name:
+                                game_loop(player_name)
                         elif button == OPTIONS_BUTTON:
                             options_menu()
                         elif button == QUIT_BUTTON:
