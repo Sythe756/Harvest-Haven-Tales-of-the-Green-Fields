@@ -20,7 +20,7 @@ class Player(pygame.sprite.Sprite):
         # movement attributes
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
-        self.speed = 300
+        self.speed = 350
 
         # collision
         self.hitbox = self.rect.copy().inflate((-126, -70))
@@ -113,7 +113,7 @@ class Player(pygame.sprite.Sprite):
             self.animations[animation] = import_folder(full_path)
 
     def animate(self, dt):
-        self.frame_index += 8 * dt  # You can adjust the multiplier (8 in this case) to control the animation speed
+        self.frame_index += 10 * dt  # You can adjust the multiplier (8 in this case) to control the animation speed
         if self.frame_index >= len(self.animations[self.status]):
             self.frame_index = 0
 
@@ -178,8 +178,8 @@ class Player(pygame.sprite.Sprite):
                         self.sleep = True
 
     def display_inventory(self, screen):
-        if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-            # Toggle the inventory open/closed state when the "Esc" key is pressed
+        if pygame.key.get_pressed()[pygame.K_i]:
+            # Toggle the inventory open/closed state when the "i" key is pressed
             self.inventory_open = not self.inventory_open
 
         if self.inventory_open:
@@ -187,24 +187,43 @@ class Player(pygame.sprite.Sprite):
             inventory_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
             inventory_surface.fill((0, 0, 0))  # Fill it with a black background (you can change the color)
 
-            # Render the inventory items on the inventory surface
+            # Render the main inventory items on the inventory surface
             font = pygame.font.Font('./assets/font/LycheeSoda.ttf', 36)
             text_color = (255, 255, 255)  # You can change the text color
 
             inventory_text = []
             for item, quantity in self.item_inventory.items():
-                inventory_text.append(f"{item}: {quantity}")
+                if not item.endswith('_seeds'):
+                    inventory_text.append(f"{item}: {quantity}")
+
+            # Add a line to display the player's money
+            money_text = f"Money: {self.money} gold"
+            inventory_text.append(money_text)
 
             for i, text in enumerate(inventory_text):
                 text_surface = font.render(text, True, text_color)
                 text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, 100 + i * 40))
                 inventory_surface.blit(text_surface, text_rect)
 
+            # Render the seed inventory separately
+            seed_inventory_text = []
+            for seed, quantity in self.seed_inventory.items():
+                seed_name = seed.split('_')[0]  # Extract the seed name (e.g., 'corn' from 'corn_seeds')
+                seed_inventory_text.append(f"{seed_name} Seeds: {quantity}")
+
+            for i, text in enumerate(seed_inventory_text):
+                text_surface = font.render(text, True, text_color)
+                text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, 400 + i * 40))  # Adjust the Y-position
+                inventory_surface.blit(text_surface, text_rect)
+
             # Blit the inventory surface onto the main screen
             screen.blit(inventory_surface, (0, 0))
 
-        # Update the display
+    # Update the display
         pygame.display.update()
+
+
+
 
     def update(self, dt):
         self.input()

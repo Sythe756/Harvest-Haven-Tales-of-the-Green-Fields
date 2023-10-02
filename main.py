@@ -1,9 +1,14 @@
 import pygame
 import sys
+import psycopg2
 from buttons import Button
 from level import Level
 from settings import *
 from name_input import get_player_name
+from db import *
+
+
+
 
 # Constants
 SCREEN_SIZE = (1280, 695)
@@ -21,6 +26,63 @@ BG = pygame.image.load("./assets/menu/farm-game-background-vector.jpg").convert_
 def get_font(size):
     return pygame.font.Font("./assets/font/LycheeSoda.ttf", size)
 
+# Function to insert player data into PostgreSQL database
+def insert_player_data(player_name, gold_amount):
+    try:
+        connection = psycopg2.connect(
+            dbname=database,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
+        cursor = connection.cursor()
+
+        # Insert player data into the table
+        cursor.execute(
+            "INSERT INTO player_data (player_name, gold_amount) VALUES (%s, %s)",
+            (player_name, gold_amount)
+        )
+
+        connection.commit()
+
+    except psycopg2.Error as e:
+        print("Error inserting player data:", e)
+
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
+# Function to retrieve highscore data from the database
+def get_highscore_data():
+    try:
+        connection = psycopg2.connect(
+            dbname=database,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
+        cursor = connection.cursor()
+
+        # Retrieve highscore data from the table, assuming it has 'player_name' and 'gold_amount' columns
+        cursor.execute(
+            "SELECT player_name, gold_amount FROM player_data ORDER BY gold_amount DESC LIMIT 10"
+        )
+        highscores = cursor.fetchall()
+
+        return highscores
+
+    except psycopg2.Error as e:
+        print("Error retrieving highscore data:", e)
+        return []
+
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
 def toggle_black_screen(player, black_screen_visible):
     if black_screen_visible and pygame.key.get_pressed()[pygame.K_i]:
         player.display_inventory(SCREEN)
@@ -30,6 +92,8 @@ def game_loop(player_name):
     player = game_level.player
 
     black_screen_visible = False
+    highscore_visible = False
+    highscores = []  # Initialize the highscores list
 
     while True:
         dt = pygame.time.Clock().tick(FPS) / 1000.0
@@ -40,6 +104,10 @@ def game_loop(player_name):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
                     toggle_black_screen(player, black_screen_visible)
+                elif event.key == pygame.K_h:
+                    highscore_visible = not highscore_visible  # Toggle visibility
+                    if highscore_visible:
+                        highscores = get_highscore_data()  # Fetch highscores only when needed
 
         game_level.run(dt)
 
@@ -48,33 +116,52 @@ def game_loop(player_name):
 
         player.display_inventory(SCREEN)
 
-        # Update only the parts of the screen that need it
+        if highscore_visible:
+            if highscores:
+                y = 100
+                for idx, (name, gold) in enumerate(highscores, 1):
+                    text = f"{idx}. {name}: {gold} gold"
+                    highscore_text = get_font(FONT_SIZE).render(text, True, WHITE)
+                    SCREEN.blit(highscore_text, (50, y))
+                    y += 50
+
         pygame.display.update()
+
+        # Update player's money in the database
+        update_player_money(player_name, player.money)
 
 def options_menu():
     while True:
-        OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
-        SCREEN.fill(WHITE)
-        OPTIONS_TEXT = get_font(FONT_SIZE).render("Coming Soon", True, BLACK)
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(640, 260))
-        SCREEN.blit(OPTIONS_TEXT, OPTIONS_RECT)
-        
-        OPTIONS_BACK = Button(image=None, pos=(640, 460),
-                            text_input="BACK", font=get_font(75), base_color=BLACK, hovering_color="Green")
+        SCREEN.fill(BLACK)
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
-        OPTIONS_BACK.update(SCREEN)
+        COMING_SOON_TEXT = get_font(MENU_FONT_SIZE).render("Coming Soon!", True, WHITE)
+        COMING_SOON_RECT = COMING_SOON_TEXT.get_rect(center=(640, 300))
+
+        BACK_BUTTON = Button(image=pygame.image.load("./assets/menu/Play Rect.png"), pos=(100, 100),
+                            text_input="BACK", font=get_font(50), base_color="#d7fcd4", hovering_color="White")
+
+        SCREEN.blit(COMING_SOON_TEXT, COMING_SOON_RECT)
+
+        buttons = [BACK_BUTTON]
+
+        for button in buttons:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(SCREEN)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
-                    return
+                for button in buttons:
+                    if button.checkForInput(MENU_MOUSE_POS):
+                        if button == BACK_BUTTON:
+                            return  # Return to the main menu
 
-        # Update only the parts of the screen that need it
         pygame.display.update()
+
+
 
 def main_menu():
     while True:
@@ -112,10 +199,9 @@ def main_menu():
                         elif button == OPTIONS_BUTTON:
                             options_menu()
                         elif button == QUIT_BUTTON:
-                            pygame.quit()
+                            pygame.quit()  
                             sys.exit()
 
-        # Update only the parts of the screen that need it
         pygame.display.update()
 
 if __name__ == "__main__":
