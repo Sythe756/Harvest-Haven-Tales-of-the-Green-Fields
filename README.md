@@ -25,5 +25,5 @@ have fun and good luck
 
 assets:
 	images:
-		github acc name:    russs123
+		sprout land assets pack by cup noodle 
   
