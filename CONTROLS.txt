@@ -1,0 +1,20 @@
+## How to play
+
+| Hoykey | Description |
+| :--: | :--: |
+| W | walks up |
+| A | walks left |
+| S | walks down |
+| D  | walks left|
+| Q | switch tool |
+| E | switch seeds|
+| LCNTRL | plant seeds|
+| Enter  | interacts with merchant |
+| ESC | exits merchant |
+| I | open inventory |
+| H  | displays highscre|
+
+## Goal of the game
+once you launch the game there's no exit unless you close the game and lose all progression 
+your only goal is to make as much money as possible and as long as possible which is until you close the game
+have fun and good luck

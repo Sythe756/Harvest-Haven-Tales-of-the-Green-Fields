@@ -1,0 +1,5 @@
+assets:
+		
+	images:
+		sprout land assets pack by cup noodle  
+
